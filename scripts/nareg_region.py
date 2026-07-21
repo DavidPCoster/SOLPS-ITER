@@ -1,0 +1,69 @@
+#! /usr/bin/env python
+from __future__ import print_function
+import netCDF4
+import os
+import matplotlib
+if not os.getenv("DISPLAY"): matplotlib.use('Agg')
+import matplotlib.pylab as plt
+import sys
+import numpy
+import re
+
+if os.access('b2mn.exe.dir/b2tallies.nc', os.R_OK):
+  f=netCDF4.Dataset('b2mn.exe.dir/b2tallies.nc','r')
+else:
+  f=netCDF4.Dataset('b2tallies.nc','r')
+times=f.variables['times']
+nareg=f.variables['nareg']
+species_names=f.variables['species']
+species=[b''.join(species_names[i,:]).strip().decode('utf-8') for i in range(species_names.shape[0])]
+
+elements=[re.sub('[-+0-9]','',species[i]) for i in range(len(species))]
+
+mask=[re.match('[a-zA-Z]+0$',species[i])!=None for i in range(len(species))]
+s=0
+bounds=[]
+for i in range(mask.count(True)-1):
+ e=mask.index(True,s+1)
+ bounds+=[[s,e]]
+ s=e
+
+bounds+=[[s,len(mask)]]
+
+nargs=len(sys.argv)
+S=0
+if nargs > 1: S=int(sys.argv[1])
+
+if S == 0:
+  for R in range(nareg.shape[2]):
+    plt.plot(times[:],numpy.sum(nareg[:,:,R],axis=1), label=str(R))
+    print('NAREG(%s) = %s' % (R,numpy.sum(nareg[-1,:,R],axis=0)))
+  plt.ylabel('nareg by region for SUM')
+else:
+  for R in range(nareg.shape[2]):
+    plt.plot(times[:],numpy.sum(nareg[:,bounds[S][0]:bounds[S][1],R],axis=1), label=str(R))
+    print('NAREG(%s) = %s' % (R,numpy.sum(nareg[-1,bounds[S][0]:bounds[S][1],R],axis=0)))
+  plt.ylabel('nareg by region for %s' % (elements[bounds[S][0]],) )
+
+if  matplotlib.__version__ <=  '0.98.1':
+  plt.legend(loc=0)
+else:
+  plt.legend(loc=0, frameon=False)
+plt.xlabel('time')
+
+cwd=os.getcwd()
+l=0
+ncwd=''
+for i in cwd.split('/'):
+  if l + 1 + len(i) < 100:
+    ncwd = ncwd + '/' + i
+    l = l + 1 + len(i)
+  else:
+    ncwd = ncwd + '/\n' + i
+    l = len(i)
+plt.suptitle(ncwd[1:], fontsize=10)
+  
+if os.getenv('SOLPS_PYTHON_PLOT') is None:
+  plt.show()
+else:
+  plt.savefig('nareg_region.' + os.getenv('SOLPS_PYTHON_PLOT'))
