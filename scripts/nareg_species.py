@@ -44,9 +44,9 @@ if os.getenv('SOLPS_PYTHON_SAVE'):
 
 for i in range(len(bounds)):
   plt.semilogy(times[:],nareg_species[:,i,R], label=elements[bounds[i][0]])
-  print('NAREG(%s) = %s' % (elements[bounds[i][0]],nareg_species[-1,i,R]))
+  print('NAREG(%s) = %0.6e' % (elements[bounds[i][0]],nareg_species[-1,i,R]))
 plt.semilogy(times[:],nareg_species[:,len(bounds),R], label='Sum')
-print('NAREG(SUM) = %s' % (nareg_species[-1,len(bounds),R]))
+print('NAREG(SUM) = %0.6e' % (nareg_species[-1,len(bounds),R]))
 
 if  matplotlib.__version__ <=  '0.98.1':
   plt.legend(loc=0)
