@@ -44,9 +44,9 @@ if os.getenv('SOLPS_PYTHON_SAVE'):
 
 for i in range(len(bounds)):
   plt.plot(times[:],rqradreg_species[:,i,R], label=elements[bounds[i][0]])
-  print('RQRADREG(%s) = %s' % (elements[bounds[i][0]],rqradreg_species[-1,i,R]))
+  print('RQRADREG(%s) = %12.3f' % (elements[bounds[i][0]],rqradreg_species[-1,i,R]))
 plt.plot(times[:],rqradreg_species[:,len(bounds),R], label='Sum')
-print('RQRADREG(SUM) = %s' % (rqradreg_species[-1,len(bounds),R]))
+print('RQRADREG(SUM) = %12.3f' % (rqradreg_species[-1,len(bounds),R]))
 
 if  matplotlib.__version__ <=  '0.98.1':
   plt.legend(loc=0)
